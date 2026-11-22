@@ -1,54 +1,77 @@
 # UGC Video Pipeline
 
-Pipeline produksi video UGC 45 detik (9:16) dengan audio konsisten, produk terkunci, dan subtitle Indonesia burned-in. Hasil iterasi project SanDisk Extreme Portable SSD 1TB — November 2026.
+Pipeline produksi video UGC 45 detik (9:16) dengan audio konsisten, produk terkunci, subtitle Indonesia burned-in — dirancang untuk produksi massal: satu folder per produk, sisanya otomatis.
 
-![preview](previews/v2_preview_take.jpg)
+![preview](previews/02-cta-product.jpg)
+
+## Cara pakai (mode massal)
+
+1. Buat folder `products/<slug-produk>/`
+2. Isi `product.png` (gambar produk) + `brief.md` (template di `products/TEMPLATE/`)
+3. Minta agent: *"bikin video untuk products/<slug>"*
+
+Agent lalu menjalankan pipeline lengkap di bawah, termasuk QC visual.
 
 ## Konsep inti
 
 Video UGC 45 detik tidak bisa dibagi ke beberapa generation tanpa risiko: **suara dan produk berubah antar generation**. Pipeline ini memaksimalkan konsistensi dengan dua aturan:
 
 1. **Satu take untuk semua dialog.** Model video menyampling audio baru di tiap generation — timbre, aksen, bahkan gender bisa geser. Semua kalimat diucapkan dalam SATU generation (maks 30 detik di wan30), jadi voice konsisten by design.
-2. **Satu gambar kanonik untuk semua generation.** Produk cepat drift kalau referensinya frame dari clip lain. Solusinya: bikin satu gambar referensi (orang + produk) via image-generation, approve manual, lalu pakai sebagai referensi semua clip video.
+2. **Satu gambar kanonik untuk semua generation.** Produk cepat drift kalau referensinya frame dari clip lain. Solusinya: bikin satu gambar referensi (orang + produk) via image-generation, review, lalu pakai sebagai referensi take.
 
-Sisa 15 detik diisi CTA yang dirakit dari footage take yang sama (slow zoom + text card), jadi zero generation tambahan dan zero drift.
+Sisa 15 detik diisi CTA yang dirakit dari footage take yang sama (multi-segmen slow zoom + text card) — zero generation tambahan, zero drift.
 
-## Alur produksi
+## Alur produksi (yang dilakukan agent)
 
 ```
-1. Gambar kanonik (sekali per project)
-   ImageGen: input render produk, prompt orang konsisten + product lock ketat
-   -> review manual sebelum lanjut
+1. Review product.png secara visual
+   -> tulis deskripsi product-lock (bentuk, tekstur, logo, aksen)
+   -> susun naskah 45-50 kata: hook -> keluhan -> reveal -> masalah
+      -> solusi -> impact, lalu beat review -> CTA
 
-2. Take utama 30 detik (satu generation)
+2. Gambar kanonik (1x per produk)
+   ImageGen, input product.png
+   Prompt: orang konsisten + product-lock + "do not redesign"
+   -> contoh hasil: images/sandisk-creator-ref.png
+
+3. Take utama 30 detik (SATU generation, berbayar)
    VideoGen wan30, reference_to_video, 1080x1920, 30s
    references = [gambar kanonik]
    Prompt wajib:
    - "ONE continuous handheld selfie-style take, no scene cuts"
    - "same person, identical face/hair/shirt"
    - "product must remain exactly identical — same shape, texture, logo"
-   - dialog Bahasa Indonesia eksplisit per beat:
-     hook -> keluhan -> reveal -> masalah -> solusi -> impact
-   - script ~45-50 kata untuk 30 detik (jangan lebih, nanti kepotong)
+   - dialog Bahasa Indonesia eksplisit per beat
 
-3. Render final 45 detik
-   ./scripts/render_final.sh take.mp4 subtitles/sandisk_ugc_subs_v2.ass out.mp4
-   -> take 0-30s + b-roll CTA 13-28s (slow zoom) + audio bed ducked
-   -> subtitle ASS di-burn dalam pass yang sama
+4. QC visual frame dari take
+   -> cari window b-roll CTA yang produknya paling jelas
+     (hero close-up ~12s, produk terangkat ~21s, dst)
+
+5. Render final 45 detik
+   ./scripts/render_final.sh take.mp4 subs.ass out.mp4 '11.2:5,19.5:5,25:5' 30
+
+6. QC otomatis + visual
+   ./scripts/qc.sh out.mp4 2:top 12:bottom 33:bottom 41:bottom
+   + lihat sendiri frame kunci: produk sesuai? orang konsisten? caption ter-render?
+   -> kalau melenceng: retry take (maks 1-2x)
 ```
 
 ## Struktur repo
 
 ```
-├── scripts/render_final.sh        # concat + CTA b-roll + subtitle burn (parameterized)
+├── products/
+│   └── TEMPLATE/brief.md          # template brief per produk
+├── scripts/
+│   ├── render_final.sh            # take + CTA multi-segmen + subtitle burn
+│   └── qc.sh                      # probe + loudness + OCR caption
 ├── subtitles/
-│   ├── sandisk_ugc_subs_v2.ass    # timeline final 45s (dipakai)
+│   ├── sandisk_ugc_subs_v2.ass    # contoh timeline final 45s
 │   └── sandisk_ugc_subs_v1.ass    # arsip versi 3-clip (timeline lama)
-├── images/sandisk-creator-ref.png # contoh gambar kanonik (orang + produk)
+├── images/sandisk-creator-ref.png # contoh gambar kanonik
 └── previews/                      # frame contoh hasil final
 ```
 
-File video tidak masuk repo (batas 100 MB/file GitHub + bloat history). Simpan di luar repo, atau pakai Git LFS / Releases kalau perlu distribusi.
+File video/media besar tidak masuk repo (batas GitHub 100 MB/file + bloat history). Simpan di luar repo, atau pakai Git LFS / Releases.
 
 ## Subtitle
 
@@ -60,26 +83,22 @@ Pakai format ASS (bukan SRT) supaya styling penuh:
 - `\fad(80,60)` per cue, timing per-beat ~2.5-3 detik
 - Kalau tempo bicara geser: edit timing ASS saja, tidak perlu re-render video
 
-## Verifikasi tanpa mata / telinga
+## Verifikasi
 
 ```bash
-# durasi + stream
-ffprobe -v error -show_entries format=duration,size \
-  -show_entries stream=codec_type,codec_name -of compact=p=0 out.mp4
-
-# audio tidak kosong (mean > -30 dB)
-ffmpeg -v info -i out.mp4 -af volumedetect -f null - 2>&1 | grep volume
-
-# caption benar-benar ter-render (OCR crop region)
-ffmpeg -ss 2 -i out.mp4 -frames:v 1 -vf "crop=1080:400:0:120" check.png
-tesseract check.png - -l eng --psm 6
+./scripts/qc.sh out.mp4 2:top 12:bottom 33:bottom 41:bottom
 ```
+
+- probe: durasi, resolusi, stream audio ada
+- loudness: mean > -30 dB, max > -20 dB (audio tidak kosong)
+- OCR crop caption: teks keluar = caption benar-benar burned
+- plus inspeksi visual frame kunci oleh agent (produk, konsistensi orang, framing)
 
 ## Limit tool
 
 - VideoGen: 2-30 detik per clip, mode `text_to_video` / `first_frame_to_video` / `reference_to_video`
 - Kuota kredit tidak bisa dicek dari sisi agent; kalau kena limit, request akan error
-- Generation tidak bisa dibatalkan setelah submit — selalu tes 1 clip dulu sebelum produksi penuh
+- Generation tidak bisa dibatalkan setelah submit — tes 1 take dulu, retry hanya saat QC gagal
 
 ## Catatan TTS (opsional, bukan jalur utama)
 
