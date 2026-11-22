@@ -1,0 +1,29 @@
+[Script Info]
+ScriptType: v4.00+
+PlayResX: 1080
+PlayResY: 1920
+WrapStyle: 0
+ScaledBorderAndShadow: yes
+
+[V4+ Styles]
+Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
+Style: TikTok,Arial Black,68,&H00FFFFFF,&H000000FF,&H00000000,&H78000000,-1,0,0,0,100,100,0,0,1,7,0,2,70,70,300,1
+Style: TikTokTop,Arial Black,68,&H00FFFFFF,&H000000FF,&H00000000,&H78000000,-1,0,0,0,100,100,0,0,1,7,0,8,70,70,0,1
+
+[Events]
+Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
+Dialogue: 0,0:00:00.50,0:00:03.20,TikTokTop,,0,0,170,,{\fad(80,60)}Syuting tiap hari? Storage HP penuh nggak sih?
+Dialogue: 0,0:00:03.20,0:00:06.00,TikTok,,0,0,0,,{\fad(80,60)}Dulu aku juga gitu…
+Dialogue: 0,0:00:06.00,0:00:09.00,TikTok,,0,0,0,,{\fad(80,60)}Footage 4K numpuk, malah kehapus
+Dialogue: 0,0:00:09.00,0:00:11.20,TikTok,,0,0,0,,{\fad(80,60)}Nyebelin banget!
+Dialogue: 0,0:00:11.20,0:00:14.00,TikTok,,0,0,0,,{\fad(80,60)}Sampai nemu ini: SanDisk Extreme 1TB
+Dialogue: 0,0:00:14.50,0:00:17.30,TikTok,,0,0,0,,{\fad(80,60)}Masalah hard disk biasa: gede, berat, lemot
+Dialogue: 0,0:00:17.30,0:00:20.00,TikTok,,0,0,0,,{\fad(80,60)}Ini? Sekecil dompet, colok USB-C
+Dialogue: 0,0:00:20.00,0:00:23.00,TikTok,,0,0,0,,{\fad(80,60)}Langsung kebaca, transfer 4K ngebut
+Dialogue: 0,0:00:23.00,0:00:26.00,TikTok,,0,0,0,,{\fad(80,60)}Editing sat-set
+Dialogue: 0,0:00:26.00,0:00:29.30,TikTok,,0,0,0,,{\fad(80,60)}Nggak pernah kehabisan storage
+Dialogue: 0,0:00:30.50,0:00:34.00,TikTok,,0,0,0,,{\fad(80,60)}Review jujur: udah kupakai sebulan
+Dialogue: 0,0:00:34.00,0:00:37.50,TikTok,,0,0,0,,{\fad(80,60)}Jatuh, kehujanan, tetap aman
+Dialogue: 0,0:00:37.50,0:00:40.50,TikTok,,0,0,0,,{\fad(80,60)}1TB segini — worth it banget!
+Dialogue: 0,0:00:40.50,0:00:43.00,TikTok,,0,0,0,,{\fad(80,60)}Buruan checkout SanDisk Extreme 1TB
+Dialogue: 0,0:00:43.00,0:00:44.80,TikTok,,0,0,0,,{\fad(80,60)}Link-nya di bio, ya!

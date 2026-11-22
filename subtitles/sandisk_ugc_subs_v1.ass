@@ -1,0 +1,29 @@
+[Script Info]
+ScriptType: v4.00+
+PlayResX: 1080
+PlayResY: 1920
+WrapStyle: 0
+ScaledBorderAndShadow: yes
+
+[V4+ Styles]
+Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
+Style: TikTok,Arial Black,68,&H00FFFFFF,&H000000FF,&H00000000,&H78000000,-1,0,0,0,100,100,0,0,1,7,0,2,70,70,300,1
+Style: TikTokTop,Arial Black,68,&H00FFFFFF,&H000000FF,&H00000000,&H78000000,-1,0,0,0,100,100,0,0,1,7,0,8,70,70,0,1
+
+[Events]
+Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
+Dialogue: 0,0:00:00.30,0:00:02.80,TikTokTop,,0,0,170,,{\fad(80,60)}Syuting tiap hari? Storage HP penuh nggak sih?
+Dialogue: 0,0:00:02.80,0:00:05.40,TikTok,,0,0,0,,{\fad(80,60)}Dulu aku juga gitu…
+Dialogue: 0,0:00:05.40,0:00:08.40,TikTok,,0,0,0,,{\fad(80,60)}Footage 4K numpuk, malah kehapus
+Dialogue: 0,0:00:08.40,0:00:11.40,TikTok,,0,0,0,,{\fad(80,60)}Nyebelin banget!
+Dialogue: 0,0:00:11.40,0:00:14.60,TikTok,,0,0,0,,{\fad(80,60)}Sampai nemu ini: SanDisk Extreme SSD 1TB!
+Dialogue: 0,0:00:15.50,0:00:18.30,TikTok,,0,0,0,,{\fad(80,60)}Masalah hard disk biasa: gede, berat, lemot
+Dialogue: 0,0:00:18.30,0:00:21.00,TikTok,,0,0,0,,{\fad(80,60)}Ini? Sekecil dompet, tinggal colok USB-C
+Dialogue: 0,0:00:21.00,0:00:23.80,TikTok,,0,0,0,,{\fad(80,60)}Transfer file 4K ngebut
+Dialogue: 0,0:00:23.80,0:00:26.60,TikTok,,0,0,0,,{\fad(80,60)}Editing sat-set, backup aman
+Dialogue: 0,0:00:26.60,0:00:29.40,TikTok,,0,0,0,,{\fad(80,60)}Nggak pernah kehabisan storage lagi
+Dialogue: 0,0:00:30.50,0:00:33.30,TikTok,,0,0,0,,{\fad(80,60)}Review jujur: udah kupakai sebulan
+Dialogue: 0,0:00:33.30,0:00:36.00,TikTok,,0,0,0,,{\fad(80,60)}Jatuh, kehujanan, tetap aman
+Dialogue: 0,0:00:36.00,0:00:38.80,TikTok,,0,0,0,,{\fad(80,60)}1TB segini — worth it banget!
+Dialogue: 0,0:00:38.80,0:00:41.60,TikTok,,0,0,0,,{\fad(80,60)}Buruan checkout SanDisk Extreme 1TB
+Dialogue: 0,0:00:41.60,0:00:44.50,TikTok,,0,0,0,,{\fad(80,60)}Link-nya di bio, ya!
