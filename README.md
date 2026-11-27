@@ -65,7 +65,7 @@ products/<slug-produk>/
 └── brief.md      # 5 isian: nama, benefit, target, CTA, nada
 ```
 
-Template brief ada di [`products/TEMPLATE/brief.md`](products/TEMPLATE/brief.md). Lalu minta agent:
+Template brief ada di [`products/TEMPLATE/brief.md`](products/TEMPLATE/brief.md), contoh yang sudah terisi di [`products/sandisk-extreme-1tb/brief.md`](products/sandisk-extreme-1tb/brief.md). Lalu minta agent:
 
 > "bikin video untuk products/<slug-produk>"
 
@@ -91,7 +91,9 @@ QC otomatis:
 
 ```
 ├── products/
-│   └── TEMPLATE/brief.md          # template brief per produk
+│   ├── TEMPLATE/brief.md          # template brief per produk
+│   └── sandisk-extreme-1tb/
+│       └── brief.md               # contoh brief terisi (tinggal tambah product.png)
 ├── scripts/
 │   ├── render_final.sh            # take + CTA multi-segmen + subtitle burn
 │   └── qc.sh                      # probe + loudness + OCR caption
@@ -144,4 +146,4 @@ Suara bawaan model biasanya lebih hidup daripada TTS, jadi jalur utama tetap aud
 
 ## Lisensi
 
-Belum ditentukan. Tambahkan `LICENSE` (mis. MIT) sebelum dipakai ulang oleh pihak lain.
+[MIT](LICENSE) — bebas dipakai, dimodifikasi, dan didistribusikan dengan mencantumkan atribusi.
