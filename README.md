@@ -2,6 +2,8 @@
 
 **Pipeline otomatis untuk memproduksi video UGC promosi 45 detik (9:16)** — suara konsisten, produk terkunci, subtitle Indonesia burned-in. Dibangun dari AI video generation + ffmpeg, dirancang untuk produksi massal: satu folder per produk, sisanya otomatis.
 
+![demo](previews/demo.gif)
+
 [![ffmpeg](https://img.shields.io/badge/ffmpeg-8.0-blue)](https://ffmpeg.org)
 [![subtitles](https://img.shields.io/badge/subtitle-ASS%20%7C%20libass-black)](https://github.com/libass/libass)
 [![format](https://img.shields.io/badge/output-1080x1920%20%7C%2030fps-informational)](#)
@@ -16,6 +18,12 @@
 | ![reveal](previews/01-reveal.jpg) | ![cta-product](previews/02-cta-product.jpg) | ![cta-end](previews/03-cta-end.jpg) |
 
 Contoh nyata: promosi SanDisk Extreme Portable SSD 1TB — creator mengeluhkan storage penuh, reveal produk, jelaskan solusi, review jujur, lalu CTA checkout. Semua dialog dalam satu take, subtitle Indonesia mengikuti per beat.
+
+**[Tonton video penuh 45 detik (MP4) — GitHub Releases](../../releases/tag/v1.0.0)** · tersedia juga aset sumber: take 30 detik dan versi awal 3-clip untuk perbandingan.
+
+![proses](previews/04-process-grid.png)
+
+*Frame proses dari video final: take utama, b-roll CTA dengan produk di tangan, dan penutup dengan text card.*
 
 ## Kenapa pipeline ini ada
 
