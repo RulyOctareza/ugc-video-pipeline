@@ -1,59 +1,90 @@
 # UGC Video Pipeline
 
-Pipeline produksi video UGC 45 detik (9:16) dengan audio konsisten, produk terkunci, subtitle Indonesia burned-in — dirancang untuk produksi massal: satu folder per produk, sisanya otomatis.
+**Pipeline otomatis untuk memproduksi video UGC promosi 45 detik (9:16)** — suara konsisten, produk terkunci, subtitle Indonesia burned-in. Dibangun dari AI video generation + ffmpeg, dirancang untuk produksi massal: satu folder per produk, sisanya otomatis.
 
-![preview](previews/02-cta-product.jpg)
+[![ffmpeg](https://img.shields.io/badge/ffmpeg-8.0-blue)](https://ffmpeg.org)
+[![subtitles](https://img.shields.io/badge/subtitle-ASS%20%7C%20libass-black)](https://github.com/libass/libass)
+[![format](https://img.shields.io/badge/output-1080x1920%20%7C%2030fps-informational)](#)
 
-## Cara pakai (mode massal)
+---
 
-1. Buat folder `products/<slug-produk>/`
-2. Isi `product.png` (gambar produk) + `brief.md` (template di `products/TEMPLATE/`)
-3. Minta agent: *"bikin video untuk products/<slug>"*
+## Contoh hasil
 
-Agent lalu menjalankan pipeline lengkap di bawah, termasuk QC visual.
+| Reveal produk | CTA — produk di tangan | CTA penutup |
+|---|---|---|
+| ![reveal](previews/01-reveal.jpg) | ![cta-product](previews/02-cta-product.jpg) | ![cta-end](previews/03-cta-end.jpg) |
 
-## Konsep inti
+Contoh nyata: promosi SanDisk Extreme Portable SSD 1TB — creator mengeluhkan storage penuh, reveal produk, jelaskan solusi, review jujur, lalu CTA checkout. Semua dialog dalam satu take, subtitle Indonesia mengikuti per beat.
 
-Video UGC 45 detik tidak bisa dibagi ke beberapa generation tanpa risiko: **suara dan produk berubah antar generation**. Pipeline ini memaksimalkan konsistensi dengan dua aturan:
+## Kenapa pipeline ini ada
 
-1. **Satu take untuk semua dialog.** Model video menyampling audio baru di tiap generation — timbre, aksen, bahkan gender bisa geser. Semua kalimat diucapkan dalam SATU generation (maks 30 detik di wan30), jadi voice konsisten by design.
-2. **Satu gambar kanonik untuk semua generation.** Produk cepat drift kalau referensinya frame dari clip lain. Solusinya: bikin satu gambar referensi (orang + produk) via image-generation, review, lalu pakai sebagai referensi take.
+Video UGC 45 detik nggak bisa asal dipecah ke beberapa generation. Dua masalah yang selalu muncul:
 
-Sisa 15 detik diisi CTA yang dirakit dari footage take yang sama (multi-segmen slow zoom + text card) — zero generation tambahan, zero drift.
+1. **Suara berubah antar clip.** Model video menyampling audio baru di tiap generation — timbre, aksen, bahkan gender bisa bergeser.
+2. **Produk ikut berubah.** Kalau tiap clip punya referensi sendiri, bentuk/tekstur/logo produk mulai melenceng.
 
-## Alur produksi (yang dilakukan agent)
+Pipeline ini menyelesaikannya dengan dua aturan keras:
+
+- **Satu take untuk semua dialog** — maksimal 30 detik dalam satu generation, voice konsisten by design.
+- **Satu gambar kanonik per produk** — orang + produk dari satu sumber, dipakai sebagai referensi take.
+
+Sisa 15 detik diisi CTA yang dirakit dari footage take yang sama (multi-segmen slow zoom + text card) — nol generation tambahan, nol drift.
+
+## Alur produksi
 
 ```
-1. Review product.png secara visual
-   -> tulis deskripsi product-lock (bentuk, tekstur, logo, aksen)
-   -> susun naskah 45-50 kata: hook -> keluhan -> reveal -> masalah
-      -> solusi -> impact, lalu beat review -> CTA
+product.png + brief.md
+       |
+       v
+[1] Review visual produk  ->  product-lock + naskah 45-50 kata
+       |                       (hook -> keluhan -> reveal -> masalah
+       |                        -> solusi -> impact -> review -> CTA)
+       v
+[2] Gambar kanonik (ImageGen, input product.png)
+       |
+       v
+[3] Take 30s, SATU generation (reference_to_video, 1080x1920)
+       |
+       v
+[4] QC visual frame -> pilih window b-roll CTA terbaik
+       |
+       v
+[5] render_final.sh  ->  take + CTA multi-segmen + subtitle burn
+       |
+       v
+[6] qc.sh + inspeksi visual  ->  final 45s
+```
 
-2. Gambar kanonik (1x per produk)
-   ImageGen, input product.png
-   Prompt: orang konsisten + product-lock + "do not redesign"
-   -> contoh hasil: images/sandisk-creator-ref.png
+## Quick start
 
-3. Take utama 30 detik (SATU generation, berbayar)
-   VideoGen wan30, reference_to_video, 1080x1920, 30s
-   references = [gambar kanonik]
-   Prompt wajib:
-   - "ONE continuous handheld selfie-style take, no scene cuts"
-   - "same person, identical face/hair/shirt"
-   - "product must remain exactly identical — same shape, texture, logo"
-   - dialog Bahasa Indonesia eksplisit per beat
+Setiap produk punya foldernya sendiri:
 
-4. QC visual frame dari take
-   -> cari window b-roll CTA yang produknya paling jelas
-     (hero close-up ~12s, produk terangkat ~21s, dst)
+```
+products/<slug-produk>/
+├── product.png   # gambar produk
+└── brief.md      # 5 isian: nama, benefit, target, CTA, nada
+```
 
-5. Render final 45 detik
-   ./scripts/render_final.sh take.mp4 subs.ass out.mp4 '11.2:5,19.5:5,25:5' 30
+Template brief ada di [`products/TEMPLATE/brief.md`](products/TEMPLATE/brief.md). Lalu minta agent:
 
-6. QC otomatis + visual
-   ./scripts/qc.sh out.mp4 2:top 12:bottom 33:bottom 41:bottom
-   + lihat sendiri frame kunci: produk sesuai? orang konsisten? caption ter-render?
-   -> kalau melenceng: retry take (maks 1-2x)
+> "bikin video untuk products/<slug-produk>"
+
+Agent menjalankan seluruh pipeline termasuk QC visual dan menghasilkan `final.mp4` 45 detik.
+
+Render manual (setelah punya take + subtitle ASS):
+
+```bash
+./scripts/render_final.sh take.mp4 subtitles/sandisk_ugc_subs_v2.ass out.mp4 \
+  '11.2:5,19.5:5,25:5' 30
+# argumen: <take> <subs.ass> <out> <cta_segments> [main_len]
+# cta_segments = daftar start:len untuk b-roll CTA (slow zoom + audio ducked)
+```
+
+QC otomatis:
+
+```bash
+./scripts/qc.sh out.mp4 2:top 12:bottom 33:bottom 41:bottom
+# probe durasi/stream, cek loudness, OCR caption burned
 ```
 
 ## Struktur repo
@@ -67,39 +98,50 @@ Sisa 15 detik diisi CTA yang dirakit dari footage take yang sama (multi-segmen s
 ├── subtitles/
 │   ├── sandisk_ugc_subs_v2.ass    # contoh timeline final 45s
 │   └── sandisk_ugc_subs_v1.ass    # arsip versi 3-clip (timeline lama)
-├── images/sandisk-creator-ref.png # contoh gambar kanonik
+├── images/sandisk-creator-ref.png # contoh gambar kanonik (orang + produk)
 └── previews/                      # frame contoh hasil final
 ```
 
-File video/media besar tidak masuk repo (batas GitHub 100 MB/file + bloat history). Simpan di luar repo, atau pakai Git LFS / Releases.
+File media besar (`.mp4`, `.mp3`, `.wav`) tidak masuk repo — simpan di luar, atau pakai Git LFS / GitHub Releases.
 
 ## Subtitle
 
-Pakai format ASS (bukan SRT) supaya styling penuh:
+Format ASS (bukan SRT) supaya styling penuh dan konsisten:
 
-- PlayRes 1080x1920, font Arial Black 68px bold
-- Putih `&H00FFFFFF`, outline hitam 7px (tanpa shadow)
-- `Alignment 2` + `MarginV 300` untuk cue bawah (aman dari UI TikTok); cue hook pakai `Alignment 8` + `MarginV 170` (atas)
-- `\fad(80,60)` per cue, timing per-beat ~2.5-3 detik
-- Kalau tempo bicara geser: edit timing ASS saja, tidak perlu re-render video
+- PlayRes `1080x1920`, font **Arial Black 68px bold**
+- Teks putih `&H00FFFFFF`, outline hitam 7px, tanpa shadow
+- `Alignment 2` + `MarginV 300` untuk cue bawah (aman dari UI TikTok)
+- Cue pembuka pakai `Alignment 8` + `MarginV 170` (atas)
+- Fade `\fad(80,60)` per cue, timing per-beat ~2.5-3 detik
+- Tempo bicara geser? Edit timing ASS saja — video tidak perlu di-render ulang
 
-## Verifikasi
+## Verifikasi (tanpa perlu mata/telinga)
 
-```bash
-./scripts/qc.sh out.mp4 2:top 12:bottom 33:bottom 41:bottom
-```
+`scripts/qc.sh` menjalankan:
 
-- probe: durasi, resolusi, stream audio ada
-- loudness: mean > -30 dB, max > -20 dB (audio tidak kosong)
-- OCR crop caption: teks keluar = caption benar-benar burned
-- plus inspeksi visual frame kunci oleh agent (produk, konsistensi orang, framing)
+- `ffprobe` — durasi, resolusi, fps, stream audio
+- `volumedetect` — audio tidak kosong (mean > -30 dB)
+- OCR crop caption (`tesseract`) — teks keluar = caption benar-benar burned
 
-## Limit tool
+Plus inspeksi visual frame kunci oleh agent: bentuk produk sesuai referensi, konsistensi orang, framing CTA.
 
-- VideoGen: 2-30 detik per clip, mode `text_to_video` / `first_frame_to_video` / `reference_to_video`
-- Kuota kredit tidak bisa dicek dari sisi agent; kalau kena limit, request akan error
-- Generation tidak bisa dibatalkan setelah submit — tes 1 take dulu, retry hanya saat QC gagal
+## Batasan & biaya
 
-## Catatan TTS (opsional, bukan jalur utama)
+- **1 produk = 1 generation berbayar** (take 30s). Retry hanya saat QC gagal (+1 kredit).
+- Durasi per clip 2-30 detik (model wan30); video dipecah per aturan "satu take".
+- Kuota kredit tidak selalu bisa dicek programatik — kalau limit tercapai, request error.
+- Generation tidak bisa dibatalkan setelah submit — selalu tes take dulu.
 
-Suara bawaan model lebih hidup daripada TTS, jadi jalur utama tetap audio dari take. Cadangan kalau butuh VO terkontrol: `edge-tts` (`id-ID-ArdiNeural` male / `id-ID-GadisNeural` female) — perlu mesin dengan internet + python `edge-tts`. macOS built-in hanya punya voice Indonesia `Damayanti` (female).
+## Catatan TTS (opsional)
+
+Suara bawaan model biasanya lebih hidup daripada TTS, jadi jalur utama tetap audio dari take. Kalau butuh VO terkontrol dan deterministik: `edge-tts` dengan voice `id-ID-ArdiNeural` (male) / `id-ID-GadisNeural` (female). macOS built-in hanya punya voice Indonesia `Damayanti` (female).
+
+## Disclaimer
+
+- SanDisk adalah merek dagang Western Digital. Penggunaan nama dan tampilan produk di repo ini hanya untuk keperluan demo — bukan afiliasi resmi.
+- Orang pada contoh video/frame adalah karakter yang di-generate AI, bukan orang sungguhan.
+- Substansinya: pipeline dan _know-how_; gambar produk untuk produksi komersial sebaiknya pakai aset resmi brand masing-masing.
+
+## Lisensi
+
+Belum ditentukan. Tambahkan `LICENSE` (mis. MIT) sebelum dipakai ulang oleh pihak lain.
