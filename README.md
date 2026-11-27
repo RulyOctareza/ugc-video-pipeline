@@ -25,6 +25,8 @@ Contoh nyata: promosi SanDisk Extreme Portable SSD 1TB — creator mengeluhkan s
 
 *Frame proses dari video final: take utama, b-roll CTA dengan produk di tangan, dan penutup dengan text card.*
 
+Sumber konsistensi: satu gambar kanonik (`images/sandisk-creator-ref.png`) → satu take 30 detik (`images/person-ref-frame.png` adalah frame yang dipakai sebagai referensi orang & produk untuk seluruh video) → window b-roll dipilih dari frame-grid take (`previews/05-take-frames.png`).
+
 ## Kenapa pipeline ini ada
 
 Video UGC 45 detik nggak bisa asal dipecah ke beberapa generation. Dua masalah yang selalu muncul:
