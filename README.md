@@ -5,6 +5,7 @@
 [![ffmpeg](https://img.shields.io/badge/ffmpeg-8.0-blue)](https://ffmpeg.org)
 [![subtitles](https://img.shields.io/badge/subtitle-ASS%20%7C%20libass-black)](https://github.com/libass/libass)
 [![format](https://img.shields.io/badge/output-1080x1920%20%7C%2030fps-informational)](#)
+![Built with Qoder](https://img.shields.io/badge/built%20with-Qoder-black)
 
 ---
 
@@ -54,6 +55,19 @@ product.png + brief.md
        v
 [6] qc.sh + inspeksi visual  ->  final 45s
 ```
+
+## Dibangun dengan Qoder
+
+Repo ini dibangun dan dijalankan dengan **Qoder** — agent-nya yang mengeksekusi pipeline, bukan sekadar menulis kode:
+
+- **Review visual produk** dari `product.png`, lalu menyusun product-lock + naskah 45-50 kata + subtitle ASS
+- **Generate gambar kanonik** (ImageGen) dengan input gambar produk
+- **Generate take 30 detik** satu kali (`reference_to_video`) supaya voice konsisten
+- **Pilih window b-roll CTA** dengan menginspeksi frame take secara visual
+- **Render final** via `scripts/render_final.sh` dan **QC otomatis** via `scripts/qc.sh` (ffprobe, loudness, OCR caption)
+- **QC visual** frame kunci sebelum menyerahkan hasil
+
+Batasan yang kami alami sendiri: tiap generation memotong kredit dan tidak bisa dibatalkan setelah submit, serta sisa kuota tidak bisa dicek programatik — karena itu pipeline selalu memulai dengan take uji dan retry hanya saat QC gagal.
 
 ## Quick start
 
